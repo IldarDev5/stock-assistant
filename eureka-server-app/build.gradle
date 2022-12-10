@@ -1,0 +1,31 @@
+plugins {
+	id 'java'
+	id 'org.springframework.boot' version '2.7.6'
+	id 'io.spring.dependency-management' version '1.0.15.RELEASE'
+}
+
+group = 'com.ildar.stockassistant'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '17'
+
+repositories {
+	mavenCentral()
+}
+
+ext {
+	set('springCloudVersion', "2021.0.5")
+}
+
+dependencies {
+	implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-server'
+}
+
+dependencyManagement {
+	imports {
+		mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+	}
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}
