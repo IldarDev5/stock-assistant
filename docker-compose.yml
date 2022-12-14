@@ -1,0 +1,34 @@
+version: '3.8'
+
+services:
+  postgres_db:
+    container_name: postgres
+    image: postgres:alpine
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_PASSWORD: ildar
+      POSTGRES_DB: stock_db
+  eureka:
+    container_name: eureka
+    image: eureka
+    build: ./eureka-server-app/
+    ports:
+      - "8761:8761"
+  stock-assistant-portfolio-service:
+    container_name: portfolio-service
+    image: stock-assistant-portfolio-service
+    build: ./stock-assistant-portfolio-service/
+    ports:
+      - "8081:8081"
+    depends_on:
+      - postgres_db
+      - eureka
+  stock-assistant-service:
+    container_name: assistant-service
+    image: stock-assistant-service
+    build: ./stock-assistant-service/
+    ports:
+      - "8082:8082"
+    depends_on:
+      - eureka
