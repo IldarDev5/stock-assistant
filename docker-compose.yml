@@ -24,6 +24,12 @@ services:
     depends_on:
       - postgres_db
       - eureka
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_USERNAME: postgres
+      POSTGRES_PASSWORD: ildar
+      EUREKA_HOST: eureka
   stock-assistant-service:
     container_name: assistant-service
     image: stock-assistant-service
