@@ -2,7 +2,7 @@
 
 echo "Building stock-assistant lib and placing into local Maven repo"
 cd stock-assistant/
-grable build -x test
+gradle build -x test
 gradle publishToMavenLocal
 
 echo "Building eureka-server-app"
