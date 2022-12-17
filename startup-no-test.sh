@@ -1,5 +1,10 @@
 #!/bin/bash
 
+echo "Building stock-assistant lib and placing into local Maven repo"
+cd stock-assistant/
+grable build -x test
+gradle publishToMavenLocal
+
 echo "Building eureka-server-app"
 cd eureka-server-app/
 gradle build -x test

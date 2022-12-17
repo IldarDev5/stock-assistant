@@ -15,6 +15,15 @@ services:
     build: ./eureka-server-app/
     ports:
       - "8761:8761"
+  mongo_db:
+    container_name: mongo_db
+    image: mongo
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: stock_app
+      MONGO_INITDB_ROOT_PASSWORD: stock
+
   stock-assistant-portfolio-service:
     container_name: portfolio-service
     image: stock-assistant-portfolio-service
@@ -38,3 +47,9 @@ services:
       - "8082:8082"
     depends_on:
       - eureka
+      - mongo_db
+    environment:
+      MONGODB_HOST: mongo_db
+      MONGODB_PORT: 27017
+      MONGODB_USERNAME: stock_app
+      MONGODB_PASSWORD: stock

@@ -22,6 +22,24 @@ dependencies {
 	annotationProcessor 'org.projectlombok:lombok'
 }
 
+bootJar {
+	enabled = false
+}
+
+jar {
+	enabled = true
+}
+
+apply plugin: 'maven-publish'
+
+publishing {
+	publications {
+		mavenJava(MavenPublication) {
+			from components.java
+		}
+	}
+}
+
 tasks.named('test') {
 	useJUnitPlatform()
 }
