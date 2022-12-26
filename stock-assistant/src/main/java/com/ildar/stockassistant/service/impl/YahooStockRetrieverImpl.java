@@ -2,6 +2,7 @@ package com.ildar.stockassistant.service.impl;
 
 import com.ildar.stockassistant.dto.StockDTO;
 import com.ildar.stockassistant.service.AsyncStockInfoRetriever;
+import com.ildar.stockassistant.service.ReactiveStockInfoRetriever;
 import com.ildar.stockassistant.service.StockInfoRetriever;
 import lombok.Getter;
 import lombok.NonNull;
@@ -10,6 +11,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
 import java.math.BigDecimal;
 import java.util.Optional;
@@ -18,7 +20,7 @@ import java.util.concurrent.CompletableFuture;
 import static java.util.Optional.ofNullable;
 
 @Getter
-public class YahooStockRetrieverImpl implements StockInfoRetriever, AsyncStockInfoRetriever {
+public class YahooStockRetrieverImpl implements StockInfoRetriever, AsyncStockInfoRetriever, ReactiveStockInfoRetriever {
 
     private final String websiteURL;
     private final WebClient webClient;
@@ -48,21 +50,25 @@ public class YahooStockRetrieverImpl implements StockInfoRetriever, AsyncStockIn
 
     @Override
     public Optional<StockDTO> findStockInfo(@NonNull String ticker) {
-        return findStockInfoAsync(ticker).join();
+        return ofNullable(findStockInfoAsync(ticker).join());
     }
 
     @Override
-    public CompletableFuture<Optional<StockDTO>> findStockInfoAsync(String ticker) {
+    public CompletableFuture<StockDTO> findStockInfoAsync(String ticker) {
+        return findStockInfoMono(ticker).toFuture();
+    }
+
+    @Override
+    public Mono<StockDTO> findStockInfoMono(String ticker) {
         return webClient.get().uri("", ticker)
                 .retrieve()
                 .bodyToMono(String.class)
-                .map(statsHTML -> statsHTMLToStockDTO(ticker, statsHTML))
-                .toFuture();
+                .flatMap(statsHTML -> statsHTMLToStockDTO(ticker, statsHTML));
     }
 
-    private Optional<StockDTO> statsHTMLToStockDTO(String ticker, String statsHTML) {
+    private Mono<StockDTO> statsHTMLToStockDTO(String ticker, String statsHTML) {
         if (statsHTML.contains(String.format(NOT_FOUND_STRING, ticker))) {
-            return Optional.empty();
+            return Mono.empty();
         }
 
         Document doc = Jsoup.parse(statsHTML);
@@ -71,16 +77,24 @@ public class YahooStockRetrieverImpl implements StockInfoRetriever, AsyncStockIn
         BigDecimal forwardPe = getForwardPe(doc);
         BigDecimal peg = getPEG(doc);
         BigDecimal beta = getBeta(doc);
+        String description = getDescription(doc);
 
-        return Optional.of(StockDTO.builder()
+        return Mono.just(StockDTO.builder()
                 .ticker(ticker)
-                .description("") //todo
+                .description(description)
                 .exchange("") //todo
                 .currentPE(trailingPe)
                 .forwardPE(forwardPe)
                 .PEG(peg)
                 .beta(beta)
                 .build());
+    }
+
+    private String getDescription(Document doc) {
+        Element descriptionH1 = doc.select("h1[class='D(ib) Fz(18px)']").first();
+        return ofNullable(descriptionH1)
+                .map(Element::text)
+                .orElse(null);
     }
 
     private BigDecimal getBeta(Document doc) {

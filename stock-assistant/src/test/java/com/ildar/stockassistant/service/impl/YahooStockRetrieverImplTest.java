@@ -19,6 +19,7 @@ class YahooStockRetrieverImplTest {
 
         assertTrue(stock.isPresent());
         assertEquals("NVDA", stock.get().ticker());
+        assertEquals("NVIDIA Corporation (NVDA)", stock.get().description());
         assertNotNull(stock.get().currentPE());
         assertNotNull(stock.get().forwardPE());
         assertNotNull(stock.get().PEG());
