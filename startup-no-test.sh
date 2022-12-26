@@ -6,11 +6,11 @@ gradle build -x test
 gradle publishToMavenLocal
 
 echo "Building eureka-server-app"
-cd eureka-server-app/
+cd ../eureka-server-app/
 gradle build -x test
 
-echo "Building stock-assistant-portfolio-service"
-cd ../stock-assistant-portfolio-service/
+echo "Building stock-portfolio-service"
+cd ../stock-portfolio-service/
 gradle build -x test
 
 echo "Building stock-assistant-service"

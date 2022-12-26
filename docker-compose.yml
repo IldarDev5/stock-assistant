@@ -27,10 +27,10 @@ services:
     volumes:
       - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
 
-  stock-assistant-portfolio-service:
+  stock-portfolio-service:
     container_name: portfolio-service
-    image: stock-assistant-portfolio-service
-    build: ./stock-assistant-portfolio-service/
+    image: stock-portfolio-service
+    build: ./stock-portfolio-service/
     ports:
       - "8081:8081"
     depends_on:
